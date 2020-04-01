@@ -1,0 +1,197 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import url('./assets/css/fonts.googleapis.com.css');
+.no-skin {
+    margin: 0px!important;
+}
+
+.md-datepicker-calendar-pane {
+    z-index: 1200;
+}
+
+.cdk-overlay-container {
+    z-index: 1200;
+}
+
+.leave-date {
+    padding: 4px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1;
+    color: #555;
+    text-align: center;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.header-title {
+    padding: 10px 0 5px 15px !important;
+    background: #333;
+    color: #fff;
+}
+
+.header-body {
+    padding: 10px 5px 0 0!important;
+}
+
+.header-body .search {
+    margin-bottom: 10px;
+}
+
+.custom-row {
+    margin: 0 -15px;
+}
+
+.week-view {
+    box-shadow: 0 8px 16px 0 #ccc;
+}
+
+.week-cols {
+    background: #eee;
+}
+
+.week-row-head {
+    background: #ddd;
+    border: none;
+    font-weight: 600;
+}
+
+.working input[type=text] {
+    width: 80px;
+    margin: 10px 10px 10px 0;
+}
+
+.working .label {
+    padding: 10px 5px!important;
+    height: 35px;
+    margin: 10px 10px 0 0;
+}
+
+.working-details {
+    display: inline-flex;
+}
+
+.working-details span,
+.non-working span {
+    font-size: 25px!important;
+    margin: auto 0;
+    cursor: pointer;
+}
+
+.non-working input {
+    margin: 10px 5px 10px 0px;
+}
+
+.non-working select {
+    margin: 10px 0;
+    /* width: 100px; */
+}
+
+.detailed_view {
+    margin: 10px 0;
+}
+
+.btn {
+    border-radius: 3px!important;
+}
+
+.timesheet-create input {
+    width: 100px;
+    margin: 0 0 0 10px;
+}
+
+#myModal {
+    padding-left: 0px!important;
+}
+
+.timesheet_records {
+    box-shadow: 0 8px 16px 0 #eee;
+    margin-top: 20px;
+    padding: 20px 10px;
+    border: 1px solid #ddd;
+}
+
+.employee_leave_row {
+    box-shadow: 0 8px 16px 0 #eee;
+    margin-top: 15px;
+    padding: 10px 20px 20px 20px;
+    border: 1px solid #ddd;
+}
+
+#reportsOf {
+    font-size: 15px;
+}
+
+.detailed_week_view {
+    display: block;
+}
+
+.addProjectWorking {
+    display: inline-flex;
+}
+
+.addProjectWorking button {
+    margin-left: 5px;
+}
+
+.non-working {
+    display: inline-flex;
+}
+
+.non-working select {
+    margin-right: 5px;
+}
+
+.btnSave {
+    margin: 8px 0!important;
+}
+
+.form_head {
+    font-size: 15px;
+    font-weight: 600;
+    background-color: #616161;
+    padding: 10px 0 0 0;
+    color: #efefef;
+    border: 1px solid #616161;
+}
+
+.form_details {
+    padding: 10px 0;
+    background-color: #f7f7f7;
+    border: 1px solid #f7f7f7;
+}
+
+.lbl_project {
+    height: auto!important;
+    padding: 10px!important;
+    margin: 10px 2px 2px 2px;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.days .lblDay {
+    height: auto!important;
+    padding: 5px!important;
+    background-color: #e0e0e0;
+    margin-bottom: 0!important;
+    width: 80px;
+    border-radius: 5px 5px 0 0;
+}
+
+.days .lblDate {
+    width: 80px;
+    height: auto!important;
+    padding: 10px 0!important;
+    font-size: 10px;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}

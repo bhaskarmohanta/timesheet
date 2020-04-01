@@ -1,0 +1,117 @@
+<div class="no-skin" *ngIf="isLoggedIn">
+    <!-- <nav> -->
+    <div id="navbar" class="navbar navbar-default ace-save-state navbar-fixed-top">
+        <div class="navbar-container ace-save-state" id="navbar-container">
+            <button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler" data-target="#sidebar">
+                    <span class="sr-only">Toggle sidebar</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            <div class="navbar-header pull-left">
+                <a href="template.html" class="navbar-brand">
+                    <small>
+                            Simpsoft Solutions
+                        </small>
+                </a>
+            </div>
+
+            <div class="navbar-buttons navbar-header pull-right" role="navigation">
+                <ul class="nav ace-nav">
+                    <li class="light-blue dropdown-modal">
+                        <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+                            <span class="user-info">
+                                    <small>Welcome, {{loggedInUser}}</small>
+                                </span>
+                            <i class="ace-icon fa fa-caret-down"></i>
+                        </a>
+                        <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+                            <li>
+                                <a href="javascript:void(0);">
+                                    <i class="ace-icon fa fa-exchange"></i> Change Password
+                                </a>
+                            </li>
+                            <li>
+                                <a href="index.html">
+                                    <i class="ace-icon fa fa-power-off"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container ace-save-state" id="main-container">
+        <div id="sidebar" class="sidebar responsive ace-save-state sidebar-fixed sidebar-scroll">
+            <ul class="nav nav-list">
+                <li>
+                    <a routerLink="/dashboard">
+                        <i class="menu-icon fa fa-tachometer"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <b class="arrow"></b>
+                </li>
+                <li class="open active">
+                    <a class="dropdown-toggle">
+                        <i class="menu-icon fa fa-calendar"></i>
+                        <span class="menu-text">
+                                My Timesheet
+                            </span>
+                        <b class="arrow fa fa-angle-down"></b>
+                    </a>
+
+                    <!-- <b class="arrow"></b> -->
+                    <ul class="submenu">
+                        <li>
+                            <a routerLink="/dashboard/viewts" routerLinkActive="active" title="View Timesheets">
+                                <i class="menu-icon fa fa-caret-right"></i> View Timesheets
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="open active">
+                    <a href="#" class="dropdown-toggle">
+                        <i class="menu-icon fa fa-envelope"></i>
+                        <span class="menu-text">
+                                HR Section
+                            </span>
+                        <b class="arrow fa fa-angle-down"></b>
+                    </a>
+                    <b class="arrow"></b>
+                    <ul class="submenu">
+                        <li>
+                            <a title="Employee Leaves" routerLink="/dashboard/empleave" routerLinkActive="active">
+                                <i class="menu-icon fa fa-caret-right"></i> Employee Leave
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+                <i id="sidebar-toggle-icon" class="ace-icon fa fa-fa-angle-double-right ace-save-state" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+            </div>
+        </div>
+
+        <div class="main-content" id="contentarea">
+            <router-outlet></router-outlet>
+        </div>
+        <div class="footer">
+            <div class="footer-inner">
+                <div class="footer-content">
+                    <span class="bigger-120">
+                        <span class="blue bolder"> &copy; Simpsoft Solutions</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- </nav> -->
+</div>
+<div *ngIf="!isLoggedIn" class="container">
+    <h3><span style="color: crimson;">OOPS!! </span> You are not authorized to Login</h3>
+    <h5>Check your credentials, and login again...</h5>
+</div>

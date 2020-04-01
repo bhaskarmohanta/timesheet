@@ -1,0 +1,157 @@
+<div class="row header-title">
+    <div class="col-md-8">
+        <h4>Manage Leaves </h4>
+    </div>
+    <div class="col-md-4 text-right">
+        <button class="btn btn-danger" data-toggle="modal" data-target="#myModal"> + Apply Leave
+        </button>
+    </div>
+</div>
+
+<div class="row header-body">
+    <div class="search col-md-12">
+        <div class="row custom-row">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-addon">Employee</span>
+                    <select id="employee" name="employee" class="form-control" readonly>
+                        <option value="0" disabled>Select</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="input-group ">
+                    <span class="input-group-addon ">From Date</span>
+                    <input type='text' class="form-control" id="fromdatesrc" name="fromdatesrc" value="" required readonly />
+                    <label class="input-group-addon" id="from_dt" (click)="from_date()"><i class="fa fa-calendar"></i></label>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-addon">To Date</span>
+                    <input type='text' class="form-control " id="todatesrc" name="todatesrc" value="" required readonly />
+                    <label class="input-group-addon" id="to_dt" (click)="to_date()"><i class="fa fa-calendar "></i></label>
+                </div>
+            </div>
+
+
+            <div class="col-md-2">
+                <div class="input-group">
+                    <span class="input-group-addon">Status</span>
+                    <select id="status" name="status" class="form-control">
+                        <option selected value="All">All</option>
+                        <option value="1">Aproved</option>
+                        <option value="0">Rejected</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-primary btn-block" (click)="loadList()">View</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+<div class="row">
+    <div class="container">
+        <span id="reportsOf">
+            <div class="alert alert-warning">
+                Select above details to get data...
+            </div>
+        </span>
+    </div>
+</div>
+
+<div id="leave_reports" class="container-fluid">
+    <div class="row employee_leave_row" *ngFor="let data of employeeLeavesData">
+        <div class="col-md-2">
+            <h5><strong style="color: blue;">#{{data.emp_id}}</strong></h5>
+            <h5 *ngFor="let eList of employees">
+                <span *ngIf="eList.emp_id == data.emp_id">
+                   {{eList.emp_name}}
+                </span>
+            </h5>
+        </div>
+        <div class="col-md-3">
+
+            <h5 *ngFor="let type of leaveTypes">
+                <span *ngIf="type.id == data.leave_type">
+                   Type: <span style="color: red;">{{type.name}}</span>
+                </span>
+            </h5>
+            <h5>{{data.from_date | date:'mediumDate'}} <strong> - </strong> {{data.to_date | date:'mediumDate'}}</h5>
+
+        </div>
+        <div class="col-md-6 text-justify" *ngIf="userRole == '1'">
+            <h5 style="color: blue;">Note</h5> {{data.leave_cmnt}}
+        </div>
+        <div class="col-md-7 text-justify" *ngIf="userRole == '0'">
+            <h5 style="color: blue;">Note</h5> {{data.leave_cmnt}}
+        </div>
+        <div class="col-md-1 text-right" style="margin: 20px 0px;" *ngIf="userRole == '1'">
+            <button id="btn_week_{{data.id}}" class="btn btn-success btn-sm align-middle" (click)="changeStatusOfLeave(data.id)" value="0">Approve</button>
+        </div>
+    </div>
+</div>
+
+<!-- Apply leave... -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width: 100%;margin: auto;">
+        <!-- Modal content-->
+        <div class="modal-content" style="padding-bottom: 30px;width: 650px;margin: 150px auto;">
+            <form id="form_leave">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Apply Leave</h4>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-group ">
+                            <span class="input-group-addon ">From Date</span>
+                            <input type='text' class="form-control" id="fromdatesrc_modal" name="fromdatesrc_modal" value="" required readonly />
+                            <label class="input-group-addon" id="from_dt_modal" (click)="from_date_modal()"><i class="fa fa-calendar"></i></label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">To Date</span>
+                            <input type='text' class="form-control " id="todatesrc_modal" name="todatesrc_modal" value="" required readonly />
+                            <label class="input-group-addon" id="to_dt_modal" (click)="to_date_modal()"><i class="fa fa-calendar "></i></label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="input-group" style="width: -webkit-fill-available;">
+                            <textarea id="leaveReason" rows="5" placeholder="Reason to be mentioned here..." name="leave_cmnt" value="" style="width:100%;"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <br>
+                    <div class="col-md-6">
+                        <div class="input-group ">
+                            <span class="input-group-addon ">Leave Type</span>
+                            <select id="leave_type " name="leave_type " class="form-control">
+                            <option selected value="0 ">Select</option>
+                            <option value="1">SL</option>
+                            <option value="2">CL</option>
+                            <option value="3">UL</option>
+                            <option value="4">EL</option>
+                            <option value="5">Holiday</option>
+                            <option value="6">Other</option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-right" style="padding-top: 9px;">
+                        <button class="btn btn-success btn-sm" type="button" (click)="saveData()">Save</button>
+                        <button class="btn btn-danger btn-sm" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+[{
+        "id": 1,
+        "name": "Simpsoft Corporate"
+    },
+    {
+        "id": 2,
+        "name": "Cadence/SFDC"
+    },
+    {
+        "id": 3,
+        "name": "Cadence/Cumulus"
+    },
+    {
+        "id": 4,
+        "name": "OMNICEL/SFDC"
+    },
+    {
+        "id": 5,
+        "name": "Simpsoft/Adminstration"
+    },
+    {
+        "id": 6,
+        "name": "Cadence/ICM"
+    },
+    {
+        "id": 7,
+        "name": "Cadence"
+    },
+    {
+        "id": 8,
+        "name": "Cadence/QA"
+    },
+    {
+        "id": 9,
+        "name": "Cadence/ Mobile App"
+    },
+    {
+        "id": 10,
+        "name": "OMNICEL"
+    }
+]
