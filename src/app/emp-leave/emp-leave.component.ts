@@ -24,7 +24,8 @@ export class EmpLeaveComponent implements OnInit {
 
     userRole: string;
     leaveTypes: any[];
-    employees: any[];
+    employeeData: any[];
+    currentEmployee: string;
     ngOnInit(): void {
         this.userRole = sessionStorage.getItem('userRole');
         this.leaveTypes = [
@@ -47,19 +48,8 @@ export class EmpLeaveComponent implements OnInit {
 
         this.httpService.get("http://localhost:8080/ListEmployees").subscribe(
             data => {
-                this.employees = data as any[];
-                console.log(this.employees);
-                var count = 1;
-                var strData = '';
-                $.each(data, function (key, value) {
-                    if (value["emp_id"] == sessionStorage.getItem("userid")) {
-                        strData += '<option selected value="' + value["emp_id"] + '">' + value["emp_id"] + ': ' + value["emp_name"] + '</option>';
-                    } else {
-                        strData += '<option value="' + value["emp_id"] + '">' + value["emp_id"] + ': ' + value["emp_name"] + '</option>';
-                    }
-                    count++;
-                });
-                $("#employee").append(strData);
+                this.employeeData = data as any[];
+                this.currentEmployee = sessionStorage.getItem("userid");
             },
             (err: HttpErrorResponse) => {
                 $("#reportsOf").html(
@@ -95,14 +85,14 @@ export class EmpLeaveComponent implements OnInit {
             $("#todatesrc").focus();
             return;
         }
-        if($("#leave_type").val() == 0){
+        if ($("#leave_type").val() == 0) {
             $.notify("Select a type of leave");
             $("#leave_type").focus();
-            return; 
+            return;
         }
         this.httpService.get("http://localhost:8080/EmployeeLeavesView").subscribe(
             data => {
-                console.log(data);
+                // console.log(data);
                 this.employeeLeavesData = data as any[];
             },
             (err: HttpErrorResponse) => {
@@ -129,18 +119,18 @@ export class EmpLeaveComponent implements OnInit {
             $("#todatesrc_modal").focus();
             return;
         }
-        if($("#leave_type").val() == 0){
+        if ($("#leave_type").val() == 0) {
             $.notify("Select a type of leave");
             $("#leave_type").focus();
-            return; 
+            return;
         }
         var data = $("#form_leave").serializeArray();
 
         let leave_details = {};
 
         leave_details["emp_id"] = sessionStorage.getItem("userid");
-        leave_details["from_date"] = moment((data[0]["value"]),"DD-MMM-YYYY").format('YYYY-MM-DD');
-        leave_details["to_date"] = moment((data[1]["value"]),"DD-MMM-YYYY").format('YYYY-MM-DD');
+        leave_details["from_date"] = moment((data[0]["value"]), "DD-MMM-YYYY").format('YYYY-MM-DD');
+        leave_details["to_date"] = moment((data[1]["value"]), "DD-MMM-YYYY").format('YYYY-MM-DD');
         leave_details["leave_cmnt"] = data[2]["value"];
         leave_details["leave_type"] = data[3]["value"];
 

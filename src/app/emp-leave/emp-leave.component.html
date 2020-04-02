@@ -14,8 +14,9 @@
             <div class="col-md-3">
                 <div class="input-group">
                     <span class="input-group-addon">Employee</span>
-                    <select id="employee" name="employee" class="form-control" readonly>
+                    <select id="employee" name="employee" class="form-control" [disabled]="userRole == '0'">
                         <option value="0" disabled>Select</option>
+                        <option *ngFor="let item of employeeData" [selected]="item.emp_id==currentEmployee" value="{{item.emp_id}}">{{item.emp_id}} : {{item.emp_name}}</option>
                     </select>
                 </div>
             </div>
@@ -69,7 +70,7 @@
     <div class="row employee_leave_row" *ngFor="let data of employeeLeavesData">
         <div class="col-md-2">
             <h5><strong style="color: blue;">#{{data.emp_id}}</strong></h5>
-            <h5 *ngFor="let eList of employees">
+            <h5 *ngFor="let eList of employeeData">
                 <span *ngIf="eList.emp_id == data.emp_id">
                    {{eList.emp_name}}
                 </span>

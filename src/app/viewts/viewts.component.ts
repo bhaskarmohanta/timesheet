@@ -2,8 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http"
 import { HttpErrorResponse } from "@angular/common/http"
 import { AuthenticationService } from '../service/authentication.service';
-// import { moment } from '../../assets/js/moment';
-import { from } from 'rxjs';
+import * as moment from 'moment';
 
 declare var $: any;
 
@@ -330,15 +329,15 @@ export class ViewtsComponent implements OnInit {
     }
 
     var data = $("#form_" + id).serializeArray();
-    console.log(data);
+    // console.log(data);
 
     let project_details = {};
     let workingDetails = [];
 
     project_details["emp_ref_id"] = sessionStorage.getItem("userid");
-    project_details["from_date"] = data[0]["value"];
-    project_details["display_date"] = data[0]["value"];
-    project_details["to_date"] = data[1]["value"];
+    project_details["from_date"] = moment((data[0]["value"]), "DD-MMM-YYYY").format('YYYY-MM-DD');
+    project_details["display_date"] = moment((data[0]["value"]), "DD-MMM-YYYY").format('YYYY-MM-DD');
+    project_details["to_date"] = moment((data[1]["value"]), "DD-MMM-YYYY").format('YYYY-MM-DD');
     project_details["day"] = data[2]["value"];
 
     let count = 0;
@@ -368,10 +367,12 @@ export class ViewtsComponent implements OnInit {
     project_details["non_working_hrs"] = data[outerCount + 1]["value"];
     project_details["non_working_cmnt"] = data[outerCount + 2]["value"];
     project_details["total_hrs"] = totalHrs;
-    console.log([project_details]);
+    // console.log([project_details]);
 
-
-    // this.httpService.post<project_details>("http://localhost:8080/save_timesheet", timesheet);
+    this.httpService.post("http://localhost:8080/EmployeeLeave", project_details)
+      .toPromise()
+      .then(response => response)
+      .catch();
   }
 
   detailed_view(id) {
