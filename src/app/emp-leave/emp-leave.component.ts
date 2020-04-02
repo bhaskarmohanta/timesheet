@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from "@angular/common/http"
 import { HttpErrorResponse } from "@angular/common/http"
 import { AuthenticationService } from '../service/authentication.service';
+import * as moment from 'moment';
 
 declare var $: any;
 var generateSubLink;
@@ -138,8 +139,8 @@ export class EmpLeaveComponent implements OnInit {
         let leave_details = {};
 
         leave_details["emp_id"] = sessionStorage.getItem("userid");
-        leave_details["from_date"] = new Date(data[0]["value"]);
-        leave_details["to_date"] = new Date(data[1]["value"]);
+        leave_details["from_date"] = moment((data[0]["value"]),"DD-MMM-YYYY").format('YYYY-MM-DD');
+        leave_details["to_date"] = moment((data[1]["value"]),"DD-MMM-YYYY").format('YYYY-MM-DD');
         leave_details["leave_cmnt"] = data[2]["value"];
         leave_details["leave_type"] = data[3]["value"];
 

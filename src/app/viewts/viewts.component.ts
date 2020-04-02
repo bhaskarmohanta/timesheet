@@ -21,73 +21,69 @@ export class ViewtsComponent implements OnInit {
   constructor(private httpService: HttpClient, private loginService: AuthenticationService) {//private api: ApiService
   }
 
+  days: any[];
   weekDays: any[];
+  months: any[];
+  currentMonth: number;
+  employeeData: any[];
+  currentEmployee: string;
   from_date: string;
   to_date: string;
-  months: string[];
-  days: string[];
   ngOnInit(): void {
 
     this.months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec"
+      { "id": 1, "month": "Jan" },
+      { "id": 2, "month": "Feb" },
+      { "id": 3, "month": "Mar" },
+      { "id": 4, "month": "Apr" },
+      { "id": 5, "month": "May" },
+      { "id": 6, "month": "Jun" },
+      { "id": 7, "month": "Jul" },
+      { "id": 8, "month": "Aug" },
+      { "id": 9, "month": "Sep" },
+      { "id": 10, "month": "Oct" },
+      { "id": 11, "month": "Nov" },
+      { "id": 12, "month": "Dec" }
     ];
     this.days = [
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat",
-      "Sun"
+      { "id": 1, "day": "Mon" },
+      { "id": 1, "day": "Tue" },
+      { "id": 1, "day": "Wed" },
+      { "id": 1, "day": "Thu" },
+      { "id": 1, "day": "Fri" },
+      { "id": 1, "day": "Sat" },
+      { "id": 1, "day": "Sun" },
     ];
 
     let date: Date = new Date();
+    this.currentMonth = date.getMonth() + 1;
+
     date.setDate(date.getDate() - date.getDay() + 0);
     this.from_date = date.getFullYear() + "-" + date.getMonth() + "-" + ("0" + date.getDate()).slice(-2);
     date = new Date();
     date.setDate(date.getDate() - date.getDay() + 6);
     this.to_date = date.getFullYear() + "-" + date.getMonth() + "-" + ("0" + date.getDate()).slice(-2);
-    // this.to_date = (date.getDate() - date.getDay() + 7) + "-" + this.months[date.getMonth()] + "-" + date.getFullYear();
 
     let weekdata = [];
     for (let i = 0; i < this.days.length; i++) {
       let day = {};
       day["day"] = i + 1;
-      day["name"] = this.days[i];
+      day["name"] = this.days[i]["day"];
       date = new Date();
       date.setDate(date.getDate() - date.getDay() + i).toString()
-      day["date"] = date.getDate() + "-" + this.months[date.getMonth()] + "-" + date.getFullYear();
+      day["date"] = date.getDate() + "-" + this.months[date.getMonth()]['month'] + "-" + date.getFullYear();
 
       weekdata[i] = day;
     }
     this.weekDays = weekdata;
+    console.log(this.weekDays);
 
     this.addProject();
 
     this.httpService.get("http://localhost:8080/ListEmployees").subscribe(
       data => {
-        var count = 1;
-        var strData = '';
-        $.each(data, function (key, value) {
-          if (value["emp_id"] == sessionStorage.getItem("userid")) {
-            strData += '<option selected value="' + value["emp_id"] + '">' + value["emp_id"] + ': ' + value["emp_name"] + '</option>';
-          } else {
-            strData += '<option value="' + value["emp_id"] + '">' + value["emp_id"] + ': ' + value["emp_name"] + '</option>';
-          }
-          count++;
-        });
-        $("#employee").append(strData);
+        this.employeeData = data as any[];
+        this.currentEmployee = sessionStorage.getItem("userid");
       },
       (err: HttpErrorResponse) => {
         $("#reportsOf").html(
@@ -100,6 +96,22 @@ export class ViewtsComponent implements OnInit {
   loadData: any[];
   projectList: any[];
   loadList() {
+    if ($("#employee").val() == 0) {
+      $.notify("Select an employee");
+      $("#employee").focus();
+      return;
+    }
+    if ($("#year").val() == 0) {
+      $.notify("Choose a Year");
+      $("#year").focus();
+      return;
+    }
+    if ($("#month").val() == 0) {
+      $.notify("Choose a Month");
+      $("#month").focus();
+      return;
+    }
+
     this.loadData = null;
     this.projectList = null;
     this.dataDetails = null;
@@ -295,7 +307,7 @@ export class ViewtsComponent implements OnInit {
   }
 
   saveData(id) {
-    
+
     let btnval = $("#btnAddProject").val();
     for (let i = 1; i <= btnval; i++) {
       if ($("#projectName_" + i).val() == 0) {
@@ -342,7 +354,7 @@ export class ViewtsComponent implements OnInit {
         workingDetailsElement["cmnt"] = data[i + 2]["value"];
         workingDetailsElement["status"] = true;
 
-        totalHrs += parseInt(workingDetailsElement["wornpm install moment --saveking_hrs"]);
+        totalHrs += parseInt(workingDetailsElement["working_hrs"]);
         i += 2;
 
         workingDetails[count] = workingDetailsElement;

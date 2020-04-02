@@ -19,15 +19,15 @@
                             <span class="input-group-addon">Employee</span>
                             <select id="employee" name="employee" class="form-control">
                                 <option value="0">Select</option>
-
+                                <option *ngFor="let item of employeeData" [selected]="item.emp_id==currentEmployee" value="{{item.emp_id}}">{{item.emp_id}} : {{item.emp_name}}</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-md-3">
                         <div class="input-group">
-                            <span class="input-group-addon">Session</span>
-                            <select id="session" name="session" class="form-control">
+                            <span class="input-group-addon">Year</span>
+                            <select id="year" name="year" class="form-control">
                                 <option value="0">Select</option>
                                 <option value="2018">2018</option>
                                 <option value="2019">2019</option>
@@ -39,19 +39,8 @@
                         <div class="input-group">
                             <span class="input-group-addon">Months</span>
                             <select id="month" name="status" class="form-control">
-                                <option selected value="0">Select</option>
-                                <option value="1">Jan</option>
-                                <option value="2">Feb</option>
-                                <option value="3">Mar</option>
-                                <option value="4">Apr</option>
-                                <option value="5">May</option>
-                                <option value="6">Jun</option>
-                                <option value="7">Jul</option>
-                                <option value="8">Aug</option>
-                                <option value="9">Sep</option>
-                                <option value="10">Oct</option>
-                                <option value="11">Nov</option>
-                                <option value="12">Dec</option>
+                                <option value="0">Select</option>
+                                <option *ngFor="let month of months" [selected]="month.id==currentMonth" value="{{month.id}}">{{month.month}}</option>
                             </select>
                         </div>
                     </div>
