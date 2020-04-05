@@ -43,8 +43,11 @@ export class EmpLeaveComponent implements OnInit {
             maxViewMode: 1
         });
 
-        $("#fromdatesrc").datepicker("setDate", "1-M-yyyy");
-        $("#todatesrc").datepicker("setDate", "0-M+1-yyyy");
+        let date = new Date();
+        let firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        let lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        $("#fromdatesrc").datepicker("setDate", firstDay);
+        $("#todatesrc").datepicker("setDate", lastDay);
 
         this.httpService.get("http://localhost:8080/ListEmployees").subscribe(
             data => {
@@ -90,9 +93,13 @@ export class EmpLeaveComponent implements OnInit {
             $("#leave_type").focus();
             return;
         }
-        this.httpService.get("http://localhost:8080/EmployeeLeavesView").subscribe(
+
+        let from_date = moment(($("#fromdatesrc").val()), "DD-MMM-YYYY").format('YYYYMMDD');
+        let to_date = moment(($("#todatesrc").val()), "DD-MMM-YYYY").format('YYYYMMDD');
+
+        let url = "http://localhost:8080/EmployeeLeavesView/" + $("#employee option:selected").val() + "/" + $("#status").val() + "/" + from_date + "/" + to_date;
+        this.httpService.get(url).subscribe(
             data => {
-                // console.log(data);
                 this.employeeLeavesData = data as any[];
             },
             (err: HttpErrorResponse) => {
@@ -101,11 +108,6 @@ export class EmpLeaveComponent implements OnInit {
                 );
             }
         );
-    }
-
-    // Change status approve or disapprove of employee leave
-    changeStatusOfLeave(id) {
-
     }
 
     saveData() {
@@ -134,12 +136,36 @@ export class EmpLeaveComponent implements OnInit {
         leave_details["leave_cmnt"] = data[2]["value"];
         leave_details["leave_type"] = data[3]["value"];
 
-        // console.log(leave_details);
-
         this.httpService.post("http://localhost:8080/EmployeeLeave", leave_details)
             .toPromise()
             .then(response => response)
             .catch();
 
+    }
+
+    // Change status approve or disapprove of employee leave
+    changeStatusOfLeave(id) {
+
+        if ($("#status_" + id).val() == 0) {
+            $.notify("Select status!");
+            $("#status").focus();
+            return;
+        }
+
+        var data = $("#adminUpdate_" + id).serializeArray();
+        let admin_update = {};
+
+        admin_update["status"] = $("#status_" + id).val();
+        admin_update["admin_note"] = $("#admin_note_" + id).val();
+
+        this.httpService.put("http://localhost:8080/UpdateTimesheetNote/" + id, admin_update)
+            .toPromise()
+            .then(response => {
+                if (response["id"] != 0) {
+                    $.notify("Record updated sucessfully!", "success");
+                }
+            },
+                (err: HttpErrorResponse) => { console.log(err) }
+            ).catch();
     }
 }

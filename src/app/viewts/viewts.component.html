@@ -4,8 +4,8 @@
             <div class="col-md-10">
                 <h4>Timesheets</h4>
             </div>
-            <div class="col-md-2 text-right">
-                <button class="btn btn-danger" data-toggle="modal" data-target="#myModal">
+            <div class="col-md-2 text-right" *ngIf="userRole == '0'">
+                <button class="btn btn-danger" data-toggle="modal" data-target="#myModal" (click)="checkData()">
                     + Create Timesheet
                 </button>
             </div>
@@ -17,7 +17,7 @@
                     <div class="col-md-4">
                         <div class="input-group">
                             <span class="input-group-addon">Employee</span>
-                            <select id="employee" name="employee" class="form-control">
+                            <select id="employee" name="employee" class="form-control" [disabled]="userRole == '0'">
                                 <option value="0">Select</option>
                                 <option *ngFor="let item of employeeData" [selected]="item.emp_id==currentEmployee" value="{{item.emp_id}}">{{item.emp_id}} : {{item.emp_name}}</option>
                             </select>
@@ -32,6 +32,8 @@
                                 <option value="2018">2018</option>
                                 <option value="2019">2019</option>
                                 <option selected value="2020">2020</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
                             </select>
                         </div>
                     </div>
@@ -40,7 +42,7 @@
                             <span class="input-group-addon">Months</span>
                             <select id="month" name="status" class="form-control">
                                 <option value="0">Select</option>
-                                <option *ngFor="let month of months" [selected]="month.id==currentMonth" value="{{month.id}}">{{month.month}}</option>
+                                <option *ngFor="let item of months" [selected]="item.id==currentMonth" value="{{item.id}}">{{item.month}}</option>
                             </select>
                         </div>
                     </div>
@@ -48,15 +50,14 @@
                         <div class="input-group">
                             <span class="input-group-addon">Status</span>
                             <select id="status" name="status" class="form-control">
-                                <option selected value="All">All</option>
+                                <option selected value="0">All</option>
                                 <option value="1">Old / Active</option>
-                                <option value="0">Rejected</option>
+                                <option value="2">Rejected</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-1">
-                        <a routerLink="/dashboard/viewts"><button class="btn btn-primary btn-block"
-                                (click)="loadList()">View</button></a>
+                        <button class="btn btn-primary btn-block" (click)="loadList()">View</button>
                     </div>
                 </div>
             </div>
@@ -68,7 +69,7 @@
             <div class="container">
                 <span id="reportsOf">
                     <div class="alert alert-warning">
-                        Select above details to get data...
+                        Select above details to get child...
                     </div>
                 </span>
                 <div id="output4"></div>
@@ -76,21 +77,20 @@
             </div>
         </div>
 
-        <div id="weekly_reports" *ngIf="loadData != null" class="container-fluid">
-            <div class="row timesheet_records" *ngFor="let data of loadData">
+        <div id="weekly_reports" *ngIf="loadParent != null" class="container-fluid">
+            <div class="row timesheet_records" *ngFor="let child of loadChild">
                 <div class="col-md-2" style="border-right: 1px dashed #ccc;">
-                    Week starts from <br><strong>{{data.display_date}}</strong>
+                    Week starts from <br><strong>{{child.from_date | date:'mediumDate'}}</strong>
                 </div>
 
                 <!-- Outer Timesheet Dataview -->
                 <div class="col-md-9" style="padding-bottom: 10px;height:50px;">
                     <div class="row custom-row">
-                        <div class="col-md-6" style="padding-bottom: 5px;overflow: hidden;" *ngFor="let wpData of data.workingDetails">
-
-                            <strong *ngFor="let pList of projectList">
-                                <!-- {{wpData.project_id}} -->
+                        <div class="col-md-6" style="padding-bottom: 5px;overflow: hidden;" *ngFor="let wpData of child.workingDetails">
+                            <strong *ngFor="let pList of projectListDB">
+                            <!-- {{wpData.project_id}} -->
                                 <span *ngIf="pList.id == wpData.project_id">
-                                    {{pList.project_name}}
+                                {{pList.project_name}}
                                 </span>
                             </strong>
                         </div>
@@ -98,12 +98,13 @@
                 </div>
 
                 <div class="col-md-1 text-right" style="border-left: 1px dashed #ccc;">
-                    <button id="btn_week_{{data.id}}" class="btn btn-success btn-sm" (click)="expand_week_view(data.id)" value="0">
-                        <span id="span_week_{{data.id}}" class="fa fa-plus-circle"></span>
+                    <button id="btn_week_{{child.id}}" class="btn btn-success btn-sm" (click)="expand_week_view(child.id)" value="0">
+                        <span id="span_week_{{child.id}}" class="fa fa-plus-circle"></span>
                     </button>
                 </div>
 
-                <div id="detailed_week_view_{{data.id}}" class="detailed_week_view col-md-12">
+                <!-- Starting of Expanded View -->
+                <div id="detailed_week_view_{{child.id}}" style="display: none;" class="detailed_week_view col-md-12">
                     <table class="table table-responsive table-striped table-bordered">
                         <tbody>
                             <tr class="week-row-head">
@@ -127,8 +128,13 @@
                                         <div class="row custom-row">
                                             <div class="col-md-1"></div>
                                             <div class="col-md-8 custom-row">
-                                                <div class="col-md-3" style="overflow: hidden;padding-left: 0px;" *ngFor="let wData of data.workingDetails">
-                                                    <strong>{{wData.name}}</strong>
+                                                <div class="col-md-3" style="overflow: hidden;padding-left: 0px;" *ngFor="let wData of child.workingDetails">
+                                                    <strong *ngFor="let pList of projectListDB">
+                                                        <!-- {{wpData.project_id}} -->
+                                                        <span *ngIf="pList.id == wData.project_id">
+                                                            {{pList.project_name}}
+                                                        </span>
+                                                    </strong>
                                                 </div>
                                             </div>
                                             <div class="col-md-2"></div>
@@ -138,47 +144,63 @@
                                 </td>
                             </tr>
 
-                            <tr *ngFor="let exData of expandedData">
-                                <td>
+                            <!-- Generating table of child-->
+                            <tr *ngFor="let parent of loadParent">
+                                <td *ngIf="parent.from_date==child.from_date">
                                     <div class="container-fluid">
                                         <div class="row custom-row">
                                             <div class="col-md-1" style="overflow: hidden;">
-                                                <h6><strong> {{exData.day}} </strong></h6>
-                                                <span class="fa fa-adjust fa-lg" *ngIf="exData.status == 2" style="color:red"></span>
-                                                <span class="fa fa-adjust fa-lg" *ngIf="exData.status == 1" style="color:#65ea65"></span>
-                                                <span class="fa fa-adjust fa-lg" *ngIf="exData.status == 0" style="color:#ded944"></span>
+                                                <h6><strong> {{parent.day}} </strong></h6>
+                                                <span class="fa fa-adjust fa-lg" *ngIf="parent.status == 2" style="color:red"></span>
+                                                <span class="fa fa-adjust fa-lg" *ngIf="parent.status == 1" style="color:#65ea65"></span>
+                                                <span class="fa fa-adjust fa-lg" *ngIf="parent.status == 0" style="color:#ded944"></span>
                                             </div>
                                             <div class="col-md-8 text-justify custom-row">
-                                                <div class="col-md-3" *ngFor="let wData of exData.working" style="overflow: hidden;padding: 10px;">
-                                                    <strong>Hrs. : </strong>{{wData.hrs}}
+                                                <div class="col-md-3" *ngFor="let wData of parent.workingDetails" style="overflow: hidden;padding: 10px;">
+                                                    <strong>Hrs. : </strong>{{wData.working_hrs}}
                                                     <br>{{wData.cmnt}}
                                                 </div>
                                             </div>
-                                            <div class="col-md-2 text-justify" style="padding: 10px;" *ngFor="let nwData of exData.non_working">
-                                                <div *ngIf="nwData.SL != 0">
-                                                    <strong>SL:</strong> {{nwData.SL}} Hrs.
-                                                </div>
-                                                <div *ngIf="nwData.CL != 0">
-                                                    <strong>CL:</strong> {{nwData.CL}} Hrs.
-                                                </div>
-                                                <div *ngIf="nwData.EL != 0">
-                                                    <strong>EL:</strong> {{nwData.EL}} Hrs.
-                                                </div>
-                                                <div *ngIf="nwData.UL != 0">
-                                                    <strong>UL:</strong> {{nwData.UL}} Hrs.
-                                                </div>
-                                                <div *ngIf="nwData.Holiday != 0">
-                                                    <strong>Holiday:</strong> {{nwData.Holiday}} Hrs.
-                                                </div>
-                                                <div *ngIf="nwData.Others != 0">
-                                                    <strong> Others: </strong>{{nwData.Others}} Hrs.
-                                                </div>
-                                                <div *ngIf="nwData.cmnt != ''">
-                                                    <strong>Comment:</strong> {{nwData.cmnt}}
+                                            <div class="col-md-2" style="padding: 10px;">
+                                                <div *ngFor="let lType of leaveTypes" class="text-justify">
+                                                    <span *ngIf="parent.non_working_id != '0' && lType.id == parent.non_working_id">
+                                                        <strong>{{lType.name}} : </strong> {{parent.non_working_hrs}} Hrs.<br>
+                                                        <span *ngIf="parent.non_working_cmnt != ''">
+                                                            <strong>Note : </strong> {{parent.non_working_cmnt}} 
+                                                        </span>
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="col-md-1">
-                                                <br><strong>Hrs:</strong> {{exData.total_time}}
+                                            <div class="col-md-1" style="padding: 10px;">
+                                                <strong>Hrs:</strong> {{parent.total_hrs}}
+                                            </div>
+                                        </div>
+
+                                        <!-- >> Admin note section -->
+                                        <div class="row custom-row">
+                                            <div class="row custom-row" *ngIf="userRole=='0' && parent.admin_note!=null && parent.admin_note!=''" style="padding: 20px;">
+                                                <div class="col-md-12">
+                                                    <span>[ <strong style="color: red;">Note: &nbsp;</strong>{{parent.admin_note}} ]</span>
+                                                </div>
+                                            </div>
+                                            <div class="row custom-row" *ngIf="userRole=='1'" style="padding: 20px;">
+                                                <form id="adminUpdate_{{parent.id}}">
+                                                    <div class="col-md-7">
+                                                        <input type="text" class="form-control" value="{{parent.admin_note}}" name="admin_note" id="admin_note_{{parent.id}}">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="input-group" style="margin: 0;">
+                                                            <span class="input-group-addon">Status</span>
+                                                            <select id="status_{{parent.id}}" name="status" class="form-control">
+                                                            <option selected value="1">Aprove</option>
+                                                            <option value="2">Reject</option>
+                                                        </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <button type="button" class="btn btn-success btn-block btn-sm" (click)="saveAdminNote(parent.id)">Update</button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -190,9 +212,9 @@
                                     <div class="row custom-row">
                                         <div class="col-md-1"></div>
                                         <div class="col-md-8">
-                                            <div class="col-md-3" *ngFor="let tHrs of totalProjectHrs" style="overflow: hidden;padding-left: 0px;">
-                                                Total: <strong>{{tHrs}}</strong> Hrs.
-                                            </div>
+                                            <!-- <div class="col-md-3" *ngFor="let tHrs of totalProjectHrs" style="overflow: hidden;padding-left: 0px;"> -->
+                                            <!-- Total: <strong>{{tHrs}}</strong> Hrs. -->
+                                            <!-- </div> -->
                                         </div>
                                         <div class="col-md-2"></div>
                                         <div class="col-md-1"></div>
@@ -254,21 +276,21 @@
                                         </div>
 
                                         <div class="form_details row custom-row" *ngFor="let wDays of weekDays">
-                                            <form id="form_{{wDays.day}}">
-                                                <!-- onsubmit="saveData(wDays.day);return false" -->
+                                            <form id="form_{{wDays.id}}">
                                                 <div class="days col-md-1">
-                                                    <label class="lblDay text-center"><strong>{{wDays.name}}</strong></label><br>
-                                                    <label class="lblDate label label-danger" id="lblDay_{{wDays.day}}">{{wDays.date}}</label>
-                                                    <input type="hidden" id="from_date_{{wDays.day}}" name="from_date" value="{{from_date}}">
-                                                    <input type="hidden" id="to_date_{{wDays.day}}" name="to_date" value="{{to_date}}">
-                                                    <input type="hidden" id="day_{{wDays.day}}" name="day" value="{{wDays.name}}">
+                                                    <label class="lblDay text-center"><strong>{{wDays.day}}</strong></label><br>
+                                                    <label class="lblDate label label-danger" id="lblDay_{{wDays.id}}">{{wDays.date}}</label>
+                                                    <input type="hidden" id="display_date_{{wDays.id}}" name="display_date" value="{{wDays.date}}">
+                                                    <input type="hidden" id="from_date_{{wDays.id}}" name="from_date" value="{{from_date}}">
+                                                    <input type="hidden" id="to_date_{{wDays.id}}" name="to_date" value="{{to_date}}">
+                                                    <input type="hidden" id="day_{{wDays.id}}" name="day" value="{{wDays.day}}">
                                                 </div>
 
-                                                <div id="working_{{wDays.day}}" class="working col-md-8">
+                                                <div id="working_{{wDays.id}}" class="working col-md-8">
                                                 </div>
 
-                                                <div id="non_working_{{wDays.day}}" class="non-working col-md-2">
-                                                    <select id="non_working_leave_{{wDays.day}}" name="non_working_id" class="form-control">
+                                                <div id="non_working_{{wDays.id}}" class="non-working col-md-2">
+                                                    <select id="non_working_leave_{{wDays.id}}" name="non_working_id" class="form-control">
                                                         <option selected value="0">Select</option>
                                                         <option value="1">SL</option>
                                                         <option value="2">CL</option>
@@ -277,26 +299,19 @@
                                                         <option value="5">Holiday</option>
                                                         <option value="6">Other</option>
                                                     </select>
-                                                    <input type="text" name="non_working_hrs" id="hrs_{{wDays.day}}" class="form-control" placeholder="Hrs.">
-                                                    <span class="fa fa-pencil-square fa-lg" (click)="openComment(wDays.day)"></span>
-                                                    <input type="hidden" name="non_working_cmnt" id="non_working_cmnt_{{wDays.day}}">
+                                                    <input type="text" name="non_working_hrs" id="hrs_{{wDays.id}}" class="form-control" placeholder="Hrs.">
+                                                    <span class="fa fa-pencil-square fa-lg" (click)="openComment(wDays.id)"></span>
+                                                    <input type="hidden" name="non_working_cmnt" id="non_working_cmnt_{{wDays.id}}">
                                                 </div>
                                                 <div class="col-md-1 text-center"> </div>
-                                                <div class="col-md-1"><button type="button" id="saveData_{{wDays.day}}" class="btnSave btn btn-success btn-block btn-sm" (click)="saveData(wDays.day)">Save</button>
+                                                <div class="col-md-1">
+                                                    <button type="button" [disabled]="wDays.status" id="saveData_{{wDays.id}}" class="btnSave btn btn-primary btn-block btn-sm" (click)="saveData(wDays.id)">Save</button>
                                                 </div>
                                             </form>
                                         </div>
 
                                     </div>
                                 </div>
-
-                                <div class="timesheet-create col-sm-12 text-right">
-                                    <!-- <div class="input-group "> -->
-                                    <!-- <input id="saveData" type="button" class="btn btn-success" value="Save" (click)="saveData()"> -->
-                                    <input type="button" class="btn btn-danger" value="Close" data-dismiss="modal">
-                                    <!-- </div> -->
-                                </div>
-
                             </div>
                         </div>
                     </div>

@@ -2,7 +2,7 @@
     <div class="col-md-8">
         <h4>Manage Leaves </h4>
     </div>
-    <div class="col-md-4 text-right">
+    <div class="col-md-4 text-right" *ngIf="userRole == '0'">
         <button class="btn btn-danger" data-toggle="modal" data-target="#myModal"> + Apply Leave
         </button>
     </div>
@@ -42,9 +42,9 @@
                 <div class="input-group">
                     <span class="input-group-addon">Status</span>
                     <select id="status" name="status" class="form-control">
-                        <option selected value="All">All</option>
+                        <option selected value="0">All</option>
                         <option value="1">Aproved</option>
-                        <option value="0">Rejected</option>
+                        <option value="2">Rejected</option>
                     </select>
                 </div>
             </div>
@@ -95,7 +95,40 @@
         <div class="col-md-1 text-right" style="margin: 20px 0px;" *ngIf="userRole == '1'">
             <button id="btn_week_{{data.id}}" class="btn btn-success btn-sm align-middle" (click)="changeStatusOfLeave(data.id)" value="0">Approve</button>
         </div>
+
+        <!-- >> Admin note section -->
+        <div class="row custom-row">
+            <div class="row custom-row" *ngIf="userRole=='0' && data.admin_note!=null && data.admin_note!=''" style="padding: 20px;">
+                <div class="col-md-12">
+                    <span>[ <strong style="color: red;">Note: &nbsp;</strong>{{data.admin_note}} ]</span>
+                </div>
+            </div>
+            <div class="row custom-row" *ngIf="userRole=='1'" style="padding: 20px;">
+                <form id="adminUpdate_{{data.id}}">
+                    <div class="col-md-7">
+                        <input type="text" class="form-control" value="{{data.admin_note}}" name="admin_note" id="admin_note_{{data.id}}">
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group" style="margin: 0;">
+                            <span class="input-group-addon">Status</span>
+                            <select id="status_{{data.id}}" name="status" class="form-control">
+                                <option selected value="1">Aprove</option>
+                                <option value="2">Reject</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-success btn-block btn-sm" (click)="changeStatusOfLeave(data.id)">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+
+
+
+
+
 </div>
 
 <!-- Apply leave... -->

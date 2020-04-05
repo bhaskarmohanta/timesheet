@@ -20,64 +20,70 @@ export class ViewtsComponent implements OnInit {
   constructor(private httpService: HttpClient, private loginService: AuthenticationService) {//private api: ApiService
   }
 
+  // timesheet: timesheetData[];
   days: any[];
   weekDays: any[];
   months: any[];
   currentMonth: number;
+  currentYear: number;
   employeeData: any[];
   currentEmployee: string;
   from_date: string;
   to_date: string;
+  userRole: string;
+  leaveTypes: any[];
+  projectListDB: any[];
+  dataCheck: string[];
   ngOnInit(): void {
 
+    this.userRole = sessionStorage.getItem('userRole');
     this.months = [
-      { "id": 1, "month": "Jan" },
-      { "id": 2, "month": "Feb" },
-      { "id": 3, "month": "Mar" },
-      { "id": 4, "month": "Apr" },
-      { "id": 5, "month": "May" },
-      { "id": 6, "month": "Jun" },
-      { "id": 7, "month": "Jul" },
-      { "id": 8, "month": "Aug" },
-      { "id": 9, "month": "Sep" },
-      { "id": 10, "month": "Oct" },
-      { "id": 11, "month": "Nov" },
-      { "id": 12, "month": "Dec" }
+      { "id": 0, "month": "Jan" },
+      { "id": 1, "month": "Feb" },
+      { "id": 2, "month": "Mar" },
+      { "id": 3, "month": "Apr" },
+      { "id": 4, "month": "May" },
+      { "id": 5, "month": "Jun" },
+      { "id": 6, "month": "Jul" },
+      { "id": 7, "month": "Aug" },
+      { "id": 8, "month": "Sep" },
+      { "id": 9, "month": "Oct" },
+      { "id": 10, "month": "Nov" },
+      { "id": 11, "month": "Dec" }
     ];
     this.days = [
       { "id": 1, "day": "Mon" },
-      { "id": 1, "day": "Tue" },
-      { "id": 1, "day": "Wed" },
-      { "id": 1, "day": "Thu" },
-      { "id": 1, "day": "Fri" },
-      { "id": 1, "day": "Sat" },
-      { "id": 1, "day": "Sun" },
+      { "id": 2, "day": "Tue" },
+      { "id": 3, "day": "Wed" },
+      { "id": 4, "day": "Thu" },
+      { "id": 5, "day": "Fri" },
+      { "id": 6, "day": "Sat" },
+      { "id": 7, "day": "Sun" },
+    ];
+
+    this.leaveTypes = [
+      { id: 1, name: "SL" },
+      { id: 2, name: "CL" },
+      { id: 3, name: "UL" },
+      { id: 4, name: "EL" },
+      { id: 5, name: "Holiday" },
+      { id: 6, name: "Other" },
     ];
 
     let date: Date = new Date();
-    this.currentMonth = date.getMonth() + 1;
+    this.currentMonth = date.getMonth();
+    this.currentYear = date.getFullYear();
 
-    date.setDate(date.getDate() - date.getDay() + 0);
-    this.from_date = date.getFullYear() + "-" + date.getMonth() + "-" + ("0" + date.getDate()).slice(-2);
-    date = new Date();
-    date.setDate(date.getDate() - date.getDay() + 6);
-    this.to_date = date.getFullYear() + "-" + date.getMonth() + "-" + ("0" + date.getDate()).slice(-2);
-
-    let weekdata = [];
-    for (let i = 0; i < this.days.length; i++) {
-      let day = {};
-      day["day"] = i + 1;
-      day["name"] = this.days[i]["day"];
-      date = new Date();
-      date.setDate(date.getDate() - date.getDay() + i).toString()
-      day["date"] = date.getDate() + "-" + this.months[date.getMonth()]['month'] + "-" + date.getFullYear();
-
-      weekdata[i] = day;
-    }
-    this.weekDays = weekdata;
-    console.log(this.weekDays);
-
-    this.addProject();
+    this.httpService.get("http://localhost:8080/ListProjects").subscribe(
+      data => {
+        this.projectListDB = data as any[];
+      },
+      (err: HttpErrorResponse) => {
+        $("#reportsOf").html(
+          '<div class="alert alert-danger"><strong>No data!</strong> No matched data found for this given values... </div>'
+        );
+      }
+    );
 
     this.httpService.get("http://localhost:8080/ListEmployees").subscribe(
       data => {
@@ -92,8 +98,66 @@ export class ViewtsComponent implements OnInit {
     );
   }
 
-  loadData: any[];
-  projectList: any[];
+  checkData() {
+    this.addProject();
+
+    let date: Date = new Date();
+
+    if (date.getDay() == 0) {
+      date.setDate(date.getDate() - 6);
+    } else {
+      date.setDate(date.getDate() - (date.getDay() - 1));
+    }
+
+    this.from_date = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+
+    let weekdata = [];
+    for (let i = 0; i < this.days.length; i++) {
+      let day = {};
+      day["id"] = i + 1;
+      day["day"] = this.days[i]["day"];
+      // date = new Date();
+      day["date"] = date.getDate() + "-" + this.months[date.getMonth()]['month'] + "-" + date.getFullYear();
+      date.setDate(date.getDate() + 1).toString()
+      day["month"] = this.currentMonth;
+      day["year"] = this.currentYear;
+      weekdata[i] = day;
+    }
+
+    date.setDate(date.getDate() - 1);
+    this.to_date = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+
+    //>>>> CHECK EXISTING RECORDS
+    let from_date = moment(this.from_date, "YYYY-MM-DD").format('YYYYMMDD');
+    let to_date = moment(this.to_date, "YYYY-MM-DD").format('YYYYMMDD');
+
+    let url = "http://localhost:8080/CheckDataTimesheet/" + $("#employee").val() + "/" + from_date + "/" + to_date;
+
+    this.httpService.get(url).subscribe(
+      data => {
+        this.dataCheck = data as string[];
+        weekdata.forEach(element => {
+          if (this.dataCheck.includes(element.day)) {
+            element.status = 1;
+          } else {
+            element.status = 0;
+          }
+        });
+      },
+      (err: HttpErrorResponse) => {
+        $("#reportsOf").html(
+          '<div class="alert alert-danger"><strong>No data!</strong> No matched data found for this given values... </div>'
+        );
+      }
+    );
+    //>>>> END
+
+    this.weekDays = weekdata;
+  }
+
+  loadParent: any[];
+  loadChild: any[];
+  recordsPerMonth: string[];
   loadList() {
     if ($("#employee").val() == 0) {
       $.notify("Select an employee");
@@ -111,72 +175,69 @@ export class ViewtsComponent implements OnInit {
       return;
     }
 
-    this.loadData = null;
-    this.projectList = null;
+    this.loadParent = null;
     this.dataDetails = null;
     this.totalProjectHrs = [];
 
-    this.httpService.get("http://localhost:8080/ListProjects").subscribe(
+    let url = "http://localhost:8080/ListTimesheets/" + $("#year").val() + "/" + (parseInt($("#month").val()) + 1) + "/" + $("#employee").val() + "/" + $("#status").val();
+    this.httpService.get(url).subscribe(
       data => {
-        this.projectList = data as any[];
+        this.loadParent = data as any[];
+        if (this.loadParent.length <= 0) {
+          $("#reportsOf").html(
+            '<div class="alert alert-danger"><strong>No data!</strong> No matched data found for this given values... </div>'
+          );
+          return;
+        }
+
+        let childData = [];
+        let countWeeks = [];
+        let count = 0;
+        for (let i = 0; i < this.loadParent.length; i++) {
+
+          if (!countWeeks.includes(this.loadParent[i]["from_date"])) {
+
+            let pushData = {};
+            pushData["id"] = count;
+            pushData["from_date"] = this.loadParent[i]["from_date"];
+            pushData["to_date"] = this.loadParent[i]["to_date"];
+            pushData["workingDetails"] = this.loadParent[i]["workingDetails"];
+
+            // >> STARTING OF PROJECT COUNT TOTAL HOURS SECTION
+            let countTotalProjectHrs = [];
+            let projectList = [];
+            for (let j = 0; j < pushData["workingDetails"].length; j++) {
+
+              if (projectList.includes(pushData["workingDetails"][j]["project_id"])) {
+                let totalProjectHrs = {};
+                totalProjectHrs["project_id"] = pushData["workingDetails"][j]["project_id"];
+                totalProjectHrs["total_hrs"] = pushData["workingDetails"][j]["working_hrs"];
+                projectList.push(pushData["workingDetails"][j]["project_id"]);
+
+                countTotalProjectHrs[pushData["workingDetails"][j]["project_id"]] = totalProjectHrs;
+              }
+            }
+            // >> ENDING OF PROJECT COUNT TOTAL HOURS SECTION
+
+            countWeeks.push(this.loadParent[i]["from_date"]);
+            childData[count] = pushData;
+            count++;
+          }
+        }
+        this.loadChild = childData;
       },
       (err: HttpErrorResponse) => {
         $("#reportsOf").html(
-          '<div class="alert alert-danger"><strong>No data!</strong> No matched data found for this given values... </div>'
-        );
-      }
-    );
-
-    this.httpService.get("http://localhost:8080/ListTimesheets").subscribe(
-      data => {
-        this.loadData = data as any[];
-
-
-        console.log(this.loadData);
-        // // Get all data
-        // for (let i = 0; i < this.loadData.length; i++) {
-        //   let localSubLink = generateSubLink + this.loadData[i]["date"] + ".json";
-        //   this.httpService.get(localSubLink).subscribe(
-        //     data => {
-        //       console.log("Into AJAX  " + i + ": " + localSubLink);
-        //       this.expandedData[i] = data as any[];
-        //       let count = 0;
-        //       while (count < 7) {
-        //         this.dataDetails = this.expandedData[i][count]["working"] as any[];
-        //         for (let i = 0; i < this.dataDetails.length; i++) {
-        //           if (this.totalProjectHrs[i] == null) {
-        //             this.totalProjectHrs[i] = 0;
-        //           }
-        //           this.totalProjectHrs[i] += this.dataDetails[i]["hrs"];
-        //         }
-        //         count++;
-        //       }
-        //       console.log("   |-- " + i);
-        //     },
-        //     (err: HttpErrorResponse) => {
-        //       $.notify(err);
-        //     }
-        //   );
-        // }
-        // // End of Get all data
-      },
-      (err: HttpErrorResponse) => {
-        $("#reportsOf").html(
-          '<div class="alert alert-danger"><strong>No data!</strong> No matched data found for this given values... </div>'
+          '<div class="alert alert-danger"><strong>No data!</strong> Error in network connection... </div>'
         );
       }
     );
   }
 
   expandedData: any[];
-  expandedDataView: string;
   dataDetails: any[];
   totalProjectHrs: Array<number>;
   expand_week_view(id) {
-    this.expandedDataView = id;
-    this.expandedData = null;
-    // this.dataDetails = null;
-    this.totalProjectHrs = [];
 
     if ($("#btn_week_" + id).val() == 0) {
       $("#btn_week_" + id).val(1);
@@ -186,29 +247,7 @@ export class ViewtsComponent implements OnInit {
       $("#span_week_" + id).removeClass("fa fa-plus-circle");
       $("#span_week_" + id).addClass("fa fa-minus-square-o");
 
-      // Get All Expanded Data
-      // let localSubLink = generateSubLink + file + ".json";
-      // this.httpService.get(localSubLink).subscribe(
-      //   data => {
-      //     this.expandedData = data as any[];
-      //     var count = 0;
-
-      //     while (count < 7) {
-      //       this.dataDetails = this.expandedData[count]["working"] as any[];
-      //       for (let i = 0; i < this.dataDetails.length; i++) {
-      //         if (this.totalProjectHrs[i] == null) {
-      //           this.totalProjectHrs[i] = 0;
-      //         }
-      //         this.totalProjectHrs[i] += this.dataDetails[i]["hrs"];
-      //       }
-      //       count++;
-      //     }
-      //   },
-      //   (err: HttpErrorResponse) => {
-      //     $.notify(err);
-      //   }
-      // );
-
+      $("#detailed_week_view_" + id).show();
     } else {
       $("#btn_week_" + id).val(0);
       $("#btn_week_" + id).removeClass("btn-warning");
@@ -216,7 +255,7 @@ export class ViewtsComponent implements OnInit {
       $("#span_week_" + id).removeClass("fa fa-minus-square-o");
       $("#span_week_" + id).addClass("fa fa-plus-circle");
 
-      $("#detailed_week_view_" + id).html("");
+      $("#detailed_week_view_" + id).hide();
     }
   }
 
@@ -230,7 +269,7 @@ export class ViewtsComponent implements OnInit {
       $("#btnAddProject").attr("disabled", "disabled");
     }
 
-    this.httpService.get("../../assets/data/ProjectNames.json").subscribe(
+    this.httpService.get("http://localhost:8080/ListProjects").subscribe(
       data => {
         this.projectName = data as any[];
 
@@ -239,7 +278,7 @@ export class ViewtsComponent implements OnInit {
           '<option selected value="0"> Select </option>';
 
         for (let i = 0; i < this.projectName.length; i++) {
-          pData += '<option value="' + this.projectName[i]["id"] + '">' + this.projectName[i]["name"] + '</option>';
+          pData += '<option value="' + this.projectName[i]["id"] + '">' + this.projectName[i]["project_name"] + '</option>';
         }
 
         pData += '</select>' +
@@ -248,7 +287,6 @@ export class ViewtsComponent implements OnInit {
         $("#add_project").append(pData);
 
         $("#btnAddProject").val(this.project_no);
-
 
         for (var i = 1; i <= 7; i++) {
           var projectDetails = '<div class="project_details" id="project_details_' + this.project_no + '' + i + '">' +
@@ -264,8 +302,6 @@ export class ViewtsComponent implements OnInit {
         }
       },
       (err: HttpErrorResponse) => {
-        // $.notify(err);
-        console.log(err);
       }
     );
   }
@@ -329,25 +365,24 @@ export class ViewtsComponent implements OnInit {
     }
 
     var data = $("#form_" + id).serializeArray();
-    // console.log(data);
 
     let project_details = {};
     let workingDetails = [];
 
     project_details["emp_ref_id"] = sessionStorage.getItem("userid");
-    project_details["from_date"] = moment((data[0]["value"]), "DD-MMM-YYYY").format('YYYY-MM-DD');
-    project_details["display_date"] = moment((data[0]["value"]), "DD-MMM-YYYY").format('YYYY-MM-DD');
-    project_details["to_date"] = moment((data[1]["value"]), "DD-MMM-YYYY").format('YYYY-MM-DD');
-    project_details["day"] = data[2]["value"];
+    project_details["display_date"] = moment(data[0]["value"], "DD-MMM-YYYY").format('DD-MMM-YYYY');
+    project_details["from_date"] = moment(data[1]["value"], "YYYY-MM-DD").format('YYYY-MM-DD');
+    project_details["to_date"] = moment((data[2]["value"]), "YYYY-MM-DD").format('YYYY-MM-DD');
+    project_details["day"] = data[3]["value"];
 
     let count = 0;
     let outerCount = 0;
     let totalHrs = 0;
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 4; i < data.length; i++) {
       if (data[i]["name"] == "project_id") {
         let workingDetailsElement = {};
 
-        workingDetailsElement["id"] = count + 1;
+        // workingDetailsElement["id"] = count + 1;
         workingDetailsElement["project_id"] = data[i]["value"];
         workingDetailsElement["working_hrs"] = data[i + 1]["value"];
         workingDetailsElement["cmnt"] = data[i + 2]["value"];
@@ -367,22 +402,42 @@ export class ViewtsComponent implements OnInit {
     project_details["non_working_hrs"] = data[outerCount + 1]["value"];
     project_details["non_working_cmnt"] = data[outerCount + 2]["value"];
     project_details["total_hrs"] = totalHrs;
-    // console.log([project_details]);
+    project_details["month"] = this.currentMonth;
+    project_details["year"] = this.currentYear;
 
-    this.httpService.post("http://localhost:8080/EmployeeLeave", project_details)
+    this.httpService.post("http://localhost:8080/timesheet", project_details)
       .toPromise()
-      .then(response => response)
+      .then(res => {
+        if (res["id"] != 0) {
+          $.notify("Record saved sucessfully!", "success");
+        }
+      },
+        (err: HttpErrorResponse) => { })
       .catch();
   }
 
-  detailed_view(id) {
-    var checkBox = document.getElementById(
-      "data_expanded_view_" + id
-    )! as HTMLInputElement;
-    if (checkBox.checked == true) {
-      $(".detailed_view" + id).show();
-    } else {
-      $(".detailed_view" + id).hide();
+  saveAdminNote(id) {
+
+    if ($("#status_" + id).val() == 0) {
+      $.notify("Select status!");
+      $("#status").focus();
+      return;
     }
+
+    var data = $("#adminUpdate_" + id).serializeArray();
+    let admin_update = {};
+
+    admin_update["status"] = $("#status_" + id).val();
+    admin_update["admin_note"] = $("#admin_note_" + id).val();
+
+    this.httpService.put("http://localhost:8080/UpdateTimesheetNote/" + id, admin_update)
+      .toPromise()
+      .then(response => {
+        if (response["id"] != 0) {
+          $.notify("Record updated sucessfully!", "success");
+        }
+      },
+        (err: HttpErrorResponse) => { }
+      ).catch();
   }
 }
